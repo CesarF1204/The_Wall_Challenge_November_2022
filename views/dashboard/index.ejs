@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/js/post.js"></script>
+    <script src="/js/comment.js"></script>
+</head>
+<body>
+    <h1>Welcome to Dashboard</h1>
+    
+    <form action="/post_process" id="post" method="post">
+        <label for="post">Post your message here: </label>
+        <input type="text" name="post" id="post" class="post">
+
+        <input type="submit" value="Post">
+    </form>
+
+
+    <ul id="post_data">
+<%  for(let post in fetchPostsComments){  %> 
+
+        <li><%= fetchPostsComments[post].post %> - Posted by: <%= fetchPostsComments[post].posted_by %> - Posted at: <%= fetchPostsComments[post].posted_at %>
+
+            <% if(fetchPostsComments[post].post_user_id === session_user_id){   %>
+                <form action="/delete_post_process" class="delete_post" method="post">
+                    <input type="hidden" name="post_id" value="<%= fetchPostsComments[post].id %>">
+                    <input type="submit" value="Delete Post">
+                </form>
+                <a href="/edit_post/<%= fetchPostsComments[post].id %>">Edit Post</a>
+            <%  } %>
+
+            <ul id="comment_data_<%= fetchPostsComments[post].id %>">
+                <% let comments = JSON.parse(fetchPostsComments[post].comments) %>
+
+                <%  for(let comment in comments){ %> 
+                    <li> <%= comments[comment].comment %> - Commented by: <%= comments[comment].commented_by %> - Commented at: <%= comments[comment].commented_at %> </li>
+
+                    <% if(comments[comment].comment_user_id === session_user_id){   %>
+                        <form action="/delete_comment_process" class="delete_comment" method="post">
+                            <input type="hidden" name="comment_id" value="<%= comments[comment].comment_id %>">
+                            <input type="submit" value="Delete Comment">
+                        </form>
+                        <a href="/edit_comment/<%= comments[comment].comment_id %>">Edit Comment</a>
+                    <%  } %>
+                <%  } %> 
+
+                
+            </ul>
+        </li>
+        <form action="/comment_process" class="comment" method="post">
+            <input type="hidden" name="post_id" value="<%= fetchPostsComments[post].id %>">
+            <input type="text" name="comment" class="comment-input">
+
+            <input type="submit" value="Comment">
+        </form>
+<%  } %> 
+    </ul>
+    
+    <a href="/logout">Logout</a>
+</body>
+</html>
